@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Period;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import javax.swing.JOptionPane;
@@ -643,48 +644,52 @@ public class Catalogo_frm extends javax.swing.JFrame {
 
         LocalDate now = LocalDate.now();
         java.sql.Date fechaE = null;
+        java.sql.Date fechaC = null;
         Date fE = jdc_prodDate.getDate();
-        if (jdc_prodDate.getDate() != null) {
 
-            long dE = fE.getTime();
-            if (now.getYear() < fE.getYear()) {
-                if (now.getYear() == fE.getYear()) {
-                    if (now.getMonthValue() < fE.getMonth()) {
-                        valido = false;
-                        JOptionPane.showMessageDialog(this, "Ingrese una fecha correcta");
-                        return;
-                    } else if (now.getMonthValue() == fE.getMonth() && now.getDayOfMonth() < fE.getDay()) {
-                        valido = false;
-                        JOptionPane.showMessageDialog(this, "Ingrese una fecha correcta");
-                        return;
-                    }
-                }
+        // --- Validación de Fecha de Elaboración ---
+        if (fE != null) {
+            // java.util.Date a LocalDate para una comparar
+            LocalDate prodDate = fE.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+            // Se verifica si la fecha de elaboración es futura
+            if (prodDate.isAfter(now)) {
+                valido = false;
+                JOptionPane.showMessageDialog(this, "Ingrese una fecha correcta. La fecha de elaboración no puede ser futura.");
+                jdc_prodDate.requestFocus();
+                return;
             }
+
+            // Si la fecha es válida, la asignamos
+            long dE = fE.getTime();
             fechaE = new java.sql.Date(dE);
 
         } else {
+
             JOptionPane.showMessageDialog(this, "La fecha de elaboración es un dato requerido", "Advertencia", JOptionPane.WARNING_MESSAGE);
             valido = false;
             jdc_prodDate.requestFocus();
+            return;
         }
 
-        java.sql.Date fechaC = null;
+        // --- Validación de Fecha de Caducidad ---
         Date fC = jdc_expDate.getDate();
+
         if (fC != null) {
-            long dC = fC.getTime();
-            if (fC.getYear() < fE.getYear()) {
-                if (fC.getYear() == fE.getYear()) {
-                    if (fC.getMonth() < fE.getMonth()) {
-                        valido = false;
-                        JOptionPane.showMessageDialog(this, "La fecha de elaboracion no debe de exceder la fecha de caducidad");
-                        return;
-                    } else if (fC.getMonth() == fE.getMonth() && fC.getDay() < fE.getDay()) {
-                        valido = false;
-                        JOptionPane.showMessageDialog(this, "La fecha de elaboracion no debe de exceder la fecha de caducidad");
-                        return;
-                    }
-                }
+            // Convertimos ambas fechas a LocalDate para comparar
+            LocalDate expDate = fC.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+            LocalDate prodDate = fechaE.toLocalDate();
+
+            //Verifica que la fecha de caducidad NO sea ANTERIOR a la de elaboración
+            if (expDate.isBefore(prodDate)) {
+                valido = false;
+                JOptionPane.showMessageDialog(this, "La fecha de elaboracion no debe de exceder la fecha de caducidad");
+                jdc_expDate.requestFocus();
+                return;
             }
+
+            long dC = fC.getTime();
             fechaC = new java.sql.Date(dC);
         }
 

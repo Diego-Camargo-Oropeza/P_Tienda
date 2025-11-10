@@ -28,9 +28,7 @@ public class DB_Connection {
     public Connection getConnection() {
         try {
             con = DriverManager.getConnection(URL, USER, PASS);
-            System.out.println("Conexión exitosa.");
         } catch (SQLException e) {
-            System.out.println("Conexión no exitosa: " + e.getMessage());
         }
         return con;
     }
@@ -43,12 +41,4 @@ public class DB_Connection {
         }
     }
 
-//    public static void main(String[] args) {
-//        DB_Connection cnx = new DB_Connection();
-//        if (cnx.getConnection() != null) {
-//            System.out.println("Conexión exitosa.");
-//        } else {
-//            System.out.println("Conexión NO exitosa.");
-//        }
-//    }
 }

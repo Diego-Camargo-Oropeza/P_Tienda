@@ -76,6 +76,7 @@ public class ProductoDB {
     }
 
     public DefaultTableModel getDatos() {
+        
         Object[] fila = new Object[9];
         try {
             this.setTitulos();
